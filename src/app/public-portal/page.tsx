@@ -37,6 +37,13 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 import { AnimatedCounter } from "@/components/animated-counter"
+import { useLocalStorage } from "@/hooks/use-local-storage"
+
+// Mock Data
+const INITIAL_ECHOES = [
+    { text: "Need more streetlights near the playground in Ward 4.", date: "2026-02-28", category: "Infrastructure" },
+    { text: "Water supply is irregular in the mornings.", date: "2026-02-27", category: "Water" },
+]
 
 // Mock Data
 const issueData = [
@@ -60,16 +67,34 @@ const COLORS = ["#FF9933", "#000080", "#138808", "#8884d8", "#ffc658"]
 export default function PublicPortal() {
     const [feedback, setFeedback] = React.useState("")
     const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const [echoes, setEchoes] = useLocalStorage("citizen-echoes", INITIAL_ECHOES)
 
-    const handleSubmitFeedback = (e: React.FormEvent) => {
+    const handleSubmitFeedback = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!feedback.trim()) return
         setIsSubmitting(true)
-        setTimeout(() => {
-            toast.success("Feedback submitted anonymously. Thank you for your contribution!")
+
+        try {
+            const response = await fetch("/api/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: feedback })
+            })
+            const data = await response.json()
+
+            const newEcho = {
+                text: feedback,
+                date: new Date().toISOString().split('T')[0],
+                category: data.category || "General"
+            }
+            setEchoes([newEcho, ...echoes])
+            toast.success("Feedback submitted anonymously. AI has categorized this for the leader hub.")
             setFeedback("")
+        } catch (error) {
+            toast.error("Submission failed.")
+        } finally {
             setIsSubmitting(false)
-        }, 1500)
+        }
     }
 
     return (
@@ -175,36 +200,60 @@ export default function PublicPortal() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
-                <Card className="border-none shadow-md bg-white dark:bg-slate-900">
+                <Card className="lg:col-span-2 border-none shadow-md bg-white dark:bg-slate-900 overflow-hidden">
                     <CardHeader>
                         <CardTitle className="text-xl flex items-center gap-2 italic">
-                            <Clock className="h-5 w-5 text-blue-500" /> Resolution Velocity
+                            <MessageSquare className="h-5 w-5 text-primary" /> Recent Citizen Echoes
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="text-3xl font-black text-blue-500 tracking-tighter">
-                        4.2 Days <span className="text-sm font-medium text-muted-foreground tracking-normal block mt-1">Avg. issue closure time</span>
+                    <CardContent className="p-0">
+                        <div className="divide-y max-h-[400px] overflow-auto">
+                            {echoes.map((echo, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="p-6 hover:bg-muted/20 transition-colors"
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <Badge variant="secondary" className="text-[10px] font-bold uppercase">{echo.category}</Badge>
+                                        <span className="text-[10px] font-bold text-muted-foreground">{echo.date}</span>
+                                    </div>
+                                    <p className="text-sm font-medium leading-relaxed italic">"{echo.text}"</p>
+                                </motion.div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
 
-                <Card className="border-none shadow-md bg-white dark:bg-slate-900">
+                <Card className="h-fit border-none shadow-md bg-white dark:bg-slate-900">
                     <CardHeader>
-                        <CardTitle className="text-xl flex items-center gap-2 italic">
-                            <CheckCircle2 className="h-5 w-5 text-green-500" /> Success Rate
-                        </CardTitle>
+                        <div className="space-y-1">
+                            <CardTitle className="text-xl flex items-center gap-2 italic">
+                                <ShieldCheck className="h-5 w-5 text-secondary" /> Trust Analytics
+                            </CardTitle>
+                            <CardDescription>AI Sentiment Breakdown</CardDescription>
+                        </div>
                     </CardHeader>
-                    <CardContent className="text-3xl font-black text-green-500 tracking-tighter">
-                        91% <span className="text-sm font-medium text-muted-foreground tracking-normal block mt-1">Issues successfully resolved</span>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-md bg-white dark:bg-slate-900">
-                    <CardHeader>
-                        <CardTitle className="text-xl flex items-center gap-2 italic">
-                            <BarChart3 className="h-5 w-5 text-primary" /> Active Engagement
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-3xl font-black text-primary tracking-tighter">
-                        1,250+ <span className="text-sm font-medium text-muted-foreground tracking-normal block mt-1">Unique citizen contributors</span>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-black uppercase tracking-widest">Positive sentiment</div>
+                            <div className="h-2 w-full bg-muted rounded-full">
+                                <div className="h-full bg-green-500 w-[72%] rounded-full" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-black uppercase tracking-widest">Neutral/Constructive</div>
+                            <div className="h-2 w-full bg-muted rounded-full">
+                                <div className="h-full bg-secondary w-[18%] rounded-full" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-black uppercase tracking-widest">Urgent/Critical</div>
+                            <div className="h-2 w-full bg-muted rounded-full">
+                                <div className="h-full bg-destructive w-[10%] rounded-full" />
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
             </div>

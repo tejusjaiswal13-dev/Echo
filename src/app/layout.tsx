@@ -19,6 +19,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Echo | Breaking Echo Chambers for Inclusive Local Leadership",
   description: "AI platform for decision intelligence, breaking echo chambers, and building public trust in grassroots governance.",
+  applicationName: "Echo Governance",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Echo",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({

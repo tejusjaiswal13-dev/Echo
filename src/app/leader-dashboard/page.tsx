@@ -25,40 +25,69 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "sonner"
 
+import { useLocalStorage } from "@/hooks/use-local-storage"
+
 // Mock Data
-const complaints = [
+const INITIAL_COMPLAINTS = [
     { id: 1, category: "Water", sentiment: "Critical", source: "Mobile Form", text: "Persistent water shortage in Ward 5 for 3 days." },
     { id: 2, category: "Roads", sentiment: "Moderate", source: "Voice Note", text: "Potholes near the market area need urgent repair." },
     { id: 3, category: "Health", sentiment: "High Priority", source: "Portal", text: "Primary health center needs more staff during morning hours." },
 ]
 
 export default function LeaderDashboard() {
+    const [complaints, setComplaints] = useLocalStorage("echo-complaints", INITIAL_COMPLAINTS)
     const [messages, setMessages] = React.useState([
         { role: "bot", text: "Hello, Leader! I'm Echo Assistant. How can I help you simulate governance decisions today?" }
     ])
     const [input, setInput] = React.useState("")
     const [isAnalyzing, setIsAnalyzing] = React.useState(false)
+    const [isSimulating, setIsSimulating] = React.useState(false)
 
     const handleSimulate = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!input.trim()) return
+        if (!input.trim() || isSimulating) return
+
         const userMsg = input
         setMessages(prev => [...prev, { role: "user", text: userMsg }])
         setInput("")
+        setIsSimulating(true)
 
-        // Simulating Gemini call
-        setTimeout(() => {
-            setMessages(prev => [...prev, { role: "bot", text: `I've analyzed the impact of "${userMsg}". Projected Trust Pulse increase: +12.3%. Key resource needed: Material requisition for Ward 4.` }])
-        }, 1000)
+        try {
+            const response = await fetch("/api/simulate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: userMsg })
+            })
+            const data = await response.json()
+
+            setMessages(prev => [...prev, { role: "bot", text: data.text }])
+        } catch (error) {
+            toast.error("Simulation failed. Please try again.")
+            setMessages(prev => [...prev, { role: "bot", text: "I encountered an error while simulating. Please check your connectivity." }])
+        } finally {
+            setIsSimulating(false)
+        }
     }
 
-    const handleAnalyzeUpload = () => {
+    const handleAnalyzeUpload = async () => {
         setIsAnalyzing(true)
         toast.info("AI Analysis in progress...", { duration: 2000 })
-        setTimeout(() => {
+
+        try {
+            // In a real scenario, this would be the actual file content or multiple items
+            const response = await fetch("/api/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: "Sample citizen complaint about water shortage in Ward 4." })
+            })
+            const data = await response.json()
+
+            toast.success(`Analysis Complete: ${data.sentiment} sentiment detected in ${data.category}.`)
+        } catch (error) {
+            toast.error("Analysis failed.")
+        } finally {
             setIsAnalyzing(false)
-            toast.success("Sentiment & Topic detection complete!")
-        }, 3000)
+        }
     }
 
     return (
@@ -220,13 +249,24 @@ export default function LeaderDashboard() {
                                             className={`flex ${m.role === "bot" ? "justify-start" : "justify-end"}`}
                                         >
                                             <div className={`max-w-[80%] px-5 py-3 rounded-3xl text-sm font-medium shadow-sm ${m.role === "bot"
-                                                    ? "bg-muted text-muted-foreground rounded-tl-none border"
-                                                    : "bg-primary text-primary-foreground rounded-tr-none"
+                                                ? "bg-muted text-muted-foreground rounded-tl-none border"
+                                                : "bg-primary text-primary-foreground rounded-tr-none"
                                                 }`}>
                                                 {m.text}
                                             </div>
                                         </motion.div>
                                     ))}
+                                    {isSimulating && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="flex justify-start"
+                                        >
+                                            <div className="bg-muted px-5 py-3 rounded-3xl rounded-tl-none border text-sm italic animate-pulse">
+                                                Echo is thinking...
+                                            </div>
+                                        </motion.div>
+                                    )}
                                 </div>
                             </ScrollArea>
                         </CardContent>
@@ -238,7 +278,7 @@ export default function LeaderDashboard() {
                                     placeholder="Ask a what-if governance question..."
                                     className="rounded-full bg-background border-2 border-transparent focus-visible:border-primary/50 transition-all h-12"
                                 />
-                                <Button type="submit" size="icon" className="h-12 w-12 rounded-full shrink-0 group shadow-lg shadow-primary/20">
+                                <Button type="submit" size="icon" disabled={isSimulating} className="h-12 w-12 rounded-full shrink-0 group shadow-lg shadow-primary/20">
                                     <Send className="h-5 w-5 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1" />
                                 </Button>
                             </form>

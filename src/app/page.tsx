@@ -25,37 +25,44 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 pb-20">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-slate-50 dark:bg-slate-950 py-24 lg:py-32">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 -right-4 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
+      <section className="relative overflow-hidden bg-slate-50 dark:bg-[#020210] py-24 lg:py-40">
+        <div className="absolute inset-0 z-0 opacity-20 dark:opacity-40">
+          <div className="absolute top-0 -left-10 w-96 h-96 bg-primary rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute bottom-0 -right-10 w-96 h-96 bg-secondary rounded-full blur-[100px] animate-pulse delay-700" />
         </div>
 
         <div className="container relative z-10 mx-auto px-4 text-center">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center rounded-full border bg-background px-3 py-1 text-sm font-medium mb-6"
+            className="inline-flex items-center rounded-full border border-primary/20 bg-background/50 backdrop-blur-md px-4 py-1.5 text-xs font-black tracking-widest uppercase mb-8 shadow-2xl hover:border-primary transition-colors cursor-default"
           >
-            <span className="flex h-2 w-2 rounded-full bg-secondary mr-2" />
+            <span className="flex h-2 w-2 rounded-full bg-secondary mr-3 animate-ping" />
             Sankalp Innovation Challenge 2026
           </motion.div>
 
           <motion.h1
             {...fadeInUp}
-            className="text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-slate-900 to-secondary dark:from-sky-400 dark:via-white dark:to-orange-400"
+            className="text-5xl font-black tracking-tighter sm:text-7xl lg:text-9xl mb-8 bg-clip-text text-transparent bg-gradient-to-b from-[#000080] to-[#FF9933] dark:from-white dark:to-slate-400 drop-shadow-sm"
           >
-            Echo: Breaking Echo Chambers <br className="hidden sm:block" />
-            for Inclusive Local Leadership
+            Echo: Breaking <br className="hidden sm:block" />
+            Echo Chambers
           </motion.h1>
 
           <motion.p
             {...fadeInUp}
             transition={{ delay: 0.2 }}
-            className="mx-auto max-w-2xl text-lg text-muted-foreground sm:text-xl mb-10"
+            className="mx-auto max-w-3xl text-lg text-muted-foreground sm:text-2xl mb-2 font-medium leading-relaxed tracking-tight"
           >
-            Empowering Panchayat and Ward leaders with AI-driven decision intelligence to build public trust through transparent, data-backed governance.
+            Empowering Panchayat and Ward leaders with <span className="text-primary font-bold">AI decision intelligence</span> to build public trust in Indian grassroots governance.
+          </motion.p>
+          <motion.p
+            {...fadeInUp}
+            transition={{ delay: 0.3 }}
+            className="mx-auto max-w-3xl text-sm text-muted-foreground/60 mb-12 font-bold italic"
+          >
+            (पंचायत और वार्ड नेताओं को भारतीय जमीनी स्तर के शासन में सार्वजनिक विश्वास बनाने के लिए AI निर्णय बुद्धिमता के साथ सशक्त बनाना।)
           </motion.p>
 
           <motion.div
