@@ -1,55 +1,84 @@
-import React from 'react';
-import { ShieldCheck, Github, Twitter, Linkedin } from 'lucide-react';
+"use client"
 
-const Footer: React.FC = () => {
+import * as React from "react"
+import Link from "next/link"
+import { Github, Twitter, Linkedin, Heart } from "lucide-react" // Removed Radio as it was not used and fixed import syntax
+import { cn } from "@/lib/utils"
+import { Button as ShadcnButton } from "@/components/ui/button"
+
+export function Footer() {
     return (
-        <footer className="bg-surface-light dark:bg-surface-dark border-t border-muted-light/10 dark:border-muted-dark/10 py-12 lg:py-16">
+        <footer className="w-full border-t bg-background pt-12 pb-6">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
-
-                    <div className="flex flex-col items-center md:items-start max-w-sm text-center md:text-left">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="p-1 rounded-lg bg-gradient-to-br from-india-blue to-saffron">
-                                <ShieldCheck className="text-white w-5 h-5" />
+                <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="flex flex-col space-y-4">
+                        <Link href="/" className="flex items-center space-x-2">
+                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary text-primary-foreground">
+                                <span className="font-bold">E</span>
                             </div>
-                            <span className="text-lg font-bold tracking-tight text-india-blue dark:text-saffron-light">
-                                Echo<span className="text-saffron dark:text-saffron">Trust</span> AI
-                            </span>
+                            <span className="text-xl font-bold">Echo</span>
+                        </Link>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Empowering local leaders with AI for decision intelligence and breaking echo chambers in grassroots governance.
+                        </p>
+                        <div className="flex space-x-4">
+                            <Link href="#" className="text-muted-foreground hover:text-primary">
+                                <Twitter className="h-5 w-5" />
+                            </Link>
+                            <Link href="#" className="text-muted-foreground hover:text-primary">
+                                <Github className="h-5 w-5" />
+                            </Link>
+                            <Link href="#" className="text-muted-foreground hover:text-primary">
+                                <Linkedin className="h-5 w-5" />
+                            </Link>
                         </div>
-                        <p className="text-sm text-muted-light dark:text-muted-dark leading-relaxed">
-                            Empowering inclusive local leadership through AI-driven transparency, bias reduction, and actionable public insights.
-                        </p>
                     </div>
 
-                    <div className="flex flex-col gap-2 text-center md:text-right">
-                        <h4 className="font-semibold mb-2">Developed by</h4>
-                        <a href="https://twitter.com/TejusJaiswal" target="_blank" rel="noreferrer" className="text-muted-light dark:text-muted-dark hover:text-india-blue dark:hover:text-saffron transition-colors font-medium"> @TejusJaiswal </a>
-                        <p className="text-xs text-muted-light/70 dark:text-muted-dark/70 mt-2 italic">
-                            Built for Hackathon 2026
-                        </p>
+                    <div className="flex flex-col space-y-4">
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">Platform</h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link href="/features" className="hover:text-primary transition-colors">Features</Link></li>
+                            <li><Link href="/leader-dashboard" className="hover:text-primary transition-colors">Leader Dashboard</Link></li>
+                            <li><Link href="/public-portal" className="hover:text-primary transition-colors">Public Portal</Link></li>
+                            <li><Link href="/impact" className="hover:text-primary transition-colors">Impact</Link></li>
+                        </ul>
                     </div>
 
+                    <div className="flex flex-col space-y-4">
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">Resources</h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link href="#" className="hover:text-primary transition-colors">Documentation</Link></li>
+                            <li><Link href="#" className="hover:text-primary transition-colors">Digital India Goals</Link></li>
+                            <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+                            <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+                        </ul>
+                    </div>
+
+                    <div className="flex flex-col space-y-4">
+                        <h3 className="text-sm font-semibold uppercase tracking-wider text-primary">Connect</h3>
+                        <div className="rounded-xl bg-muted p-4 space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground">Stay updated on latest governance AI tools.</p>
+                            <form className="flex space-x-2">
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    className="w-full h-8 px-3 text-xs bg-background border rounded outline-none focus:ring-1 focus:ring-primary"
+                                />
+                                <ShadcnButton size="sm" className="h-8">Join</ShadcnButton>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-muted-light/10 dark:border-muted-dark/10 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-sm text-muted-light/80 dark:text-muted-dark/80">
-                        &copy; {new Date().getFullYear()} EchoTrust AI. All rights reserved.
+                <div className="mt-12 flex flex-col items-center justify-between border-t border-muted-foreground/10 pt-6 space-y-4 sm:flex-row sm:space-y-0">
+                    <p className="text-xs text-muted-foreground flex items-center">
+                        Made with <Heart className="h-3 w-3 mx-1 text-red-500 fill-red-500" /> for Sankalp Innovation Challenge 2026.
                     </p>
-                    <div className="flex gap-4">
-                        <a href="#" className="text-muted-light dark:text-muted-dark hover:text-india-blue dark:hover:text-saffron transition-colors" aria-label="Github">
-                            <Github className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="text-muted-light dark:text-muted-dark hover:text-india-blue dark:hover:text-saffron transition-colors" aria-label="Twitter">
-                            <Twitter className="w-5 h-5" />
-                        </a>
-                        <a href="#" className="text-muted-light dark:text-muted-dark hover:text-india-blue dark:hover:text-saffron transition-colors" aria-label="LinkedIn">
-                            <Linkedin className="w-5 h-5" />
-                        </a>
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        © {new Date().getFullYear()} Echo by @TejusJaiswal. Kanpur, India.
+                    </p>
                 </div>
             </div>
         </footer>
-    );
-};
-
-export default Footer;
+    )
+}
