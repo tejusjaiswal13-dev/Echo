@@ -7,6 +7,25 @@ export const geminiModel = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
 });
 
+async function callHFasFallback(prompt: string) {
+    const HF_API_KEY = process.env.HF_API_KEY;
+    if (!HF_API_KEY) return null;
+    try {
+        const response = await fetch("https://api-inference.huggingface.co/models/google/gemma-2b-it", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${HF_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ inputs: `Analyze governance scenario: ${prompt}` }),
+        });
+        const res = await response.json();
+        return res[0]?.generated_text || null;
+    } catch (e) {
+        return null;
+    }
+}
+
 export async function runSimulation(prompt: string) {
     try {
         if (!apiKey) {
@@ -33,10 +52,20 @@ export async function runSimulation(prompt: string) {
             text: response.text(),
             status: "success"
         };
-    } catch (error) {
-        console.error("Gemini API Error:", error);
+    } catch (error: any) {
+        console.error("Gemini API Error Detail:", error);
+
+        // Fallback to HF if Gemini fails
+        const fallbackRes = await callHFasFallback(prompt);
+        if (fallbackRes) {
+            return {
+                text: `(HF Fallback Mode): ${fallbackRes}`,
+                status: "success"
+            };
+        }
+
         return {
-            text: "An error occurred with the AI simulator. Please check API configuration.",
+            text: `AI Simulator Error: ${error.message || "Unknown error"}. Please check API configuration and limits.`,
             status: "error"
         };
     }
